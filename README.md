@@ -97,9 +97,20 @@ records remain in the database for visibility. A production version would likely
 separate audit history from active deployments more clearly and expose a cleanup
 action in the UI.
 
+## Rough Time Spent
+
+Roughly 2 full working days spread across setup, pipeline implementation,
+Compose integration, end-to-end verification, Brimble deployment, and README
+write-up.
+
 ## Brimble Deployment
 
 Status: deployed on Brimble.
+
+This Brimble deploy is the frontend-only static deployment used for the
+submission's Brimble feedback requirement. The main evaluation target for the
+take-home is still the fullstack system that runs end-to-end with
+`docker compose up`.
 
 Recommended target: `frontend/`
 
