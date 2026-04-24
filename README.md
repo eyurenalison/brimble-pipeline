@@ -99,8 +99,7 @@ action in the UI.
 
 ## Brimble Deployment
 
-Status: ready to deploy from the Brimble dashboard once this repo is pushed to a
-Git provider.
+Status: deployed on Brimble.
 
 Recommended target: `frontend/`
 
@@ -118,19 +117,33 @@ The frontend includes `frontend/brimble.json` so Brimble rewrites SPA routes to
 
 Repository: `https://github.com/eyurenalison/brimble-pipeline.git`
 
-Live URL: `https://brimble-pipeline.brimble.app/`
+Live URL: `https://brimble-pipeline-project.brimble.app/`
 
 ### Brimble Feedback
 
-The import-based deployment flow is easy to understand at a high level: connect
-a Git provider, choose the repository, set the deployment directory, and deploy.
-The main friction for this monorepo is that the required build settings are not
-obvious from the project root. A clearer monorepo preset, or a short checklist
-near the deployment-directory field, would reduce guesswork around install,
-build, and output paths.
+The import-based deployment flow is understandable at a high level: connect a
+Git provider, choose the repository, set the root directory, and deploy. The
+main friction for this monorepo was that the correct settings were not obvious
+from the project root. `Root directory`, install/build commands, and output
+directory all matter here, but the UI did not make the monorepo case especially
+clear. A stronger monorepo preset or a short guided checklist near those fields
+would reduce guesswork a lot.
 
-The Vite documentation is useful, especially the SPA rewrite note, but it is
-easy to miss that `brimble.json` should live inside the selected deployment
-directory when deploying only `frontend/` from a monorepo. I would also like the
-dashboard to preview the detected commands before the first deploy, because that
-would make mistakes visible before spending build minutes.
+The frontend-only deploy also exposed an important product gap. When I deployed
+just the Vite frontend, the app initially tried to talk to `/api/deployments`
+and surfaced a bad runtime experience until I changed the frontend to explain
+that the Brimble deploy was static-only. That is partly on the app, but it also
+showed that Brimble does not give much guidance about the difference between
+deploying a static frontend and deploying a fullstack app that expects a live
+API. Some kind of “this project has no backend route configured” hint would help
+people catch that earlier.
+
+The biggest bug I hit was artifact inconsistency. Brimble showed the correct
+commit SHA (`ca1e7e9`) and the build logs showed newly generated asset hashes,
+but the live site from the first project still served older asset hashes and
+therefore older frontend code. That made the deploy look successful while
+publishing stale output. Creating a brand new Brimble project with the same repo
+worked, and the second URL served the correct build. That is exactly the kind of
+thing that would make debugging hard in a real team, because commit metadata,
+build logs, and runtime behavior looked like they were describing different
+deploys.
