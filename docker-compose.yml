@@ -1,0 +1,63 @@
+name: brimble-pipeline
+
+networks:
+  brimble-net:
+    name: brimble-net
+    driver: bridge
+
+volumes:
+  db-data:
+  backend-tmp:
+
+services:
+  caddy:
+    image: caddy:2.11.2-alpine
+    ports:
+      - "80:80"
+      - "2019:2019"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - brimble-net
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      APP_BASE_DOMAIN: localhost
+      APP_CONTAINER_PORT: 3000
+      BUILDKIT_HOST: docker-container://buildkit
+      CADDY_ADMIN_URL: http://caddy:2019
+      DATABASE_URL: /data/deployments.db
+      DOCKER_NETWORK: brimble-net
+      PORT: 3001
+    volumes:
+      - db-data:/data
+      - backend-tmp:/app/backend/tmp
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - brimble-net
+    depends_on:
+      - buildkit
+      - caddy
+    restart: unless-stopped
+
+  buildkit:
+    image: moby/buildkit:latest
+    container_name: buildkit
+    privileged: true
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: ""
+    networks:
+      - brimble-net
+    depends_on:
+      - backend
+    restart: unless-stopped

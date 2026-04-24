@@ -1,0 +1,16 @@
+{
+  "name": "brimble-pipeline",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "check": "biome check --write .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.13",
+    "husky": "9.1.7"
+  }
+}

@@ -1,0 +1,9 @@
+{
+	admin 0.0.0.0:2019
+}
+
+:80 {
+	respond /health 200
+	reverse_proxy /api/* backend:3001
+	reverse_proxy /* frontend:80
+}
