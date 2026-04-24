@@ -29,6 +29,7 @@ interface DeploymentListResponse {
 }
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
+const LOCAL_HOSTS = new Set(['127.0.0.1', 'localhost']);
 
 function apiPath(path: string) {
   if (!API_URL) {
@@ -36,6 +37,29 @@ function apiPath(path: string) {
   }
 
   return `${API_URL.replace(/\/$/, '')}${path}`;
+}
+
+function defaultApiUnavailableMessage() {
+  return 'The deployment API is unavailable in this frontend-only deploy. Run the full stack with docker compose up to use the pipeline.';
+}
+
+function isDeploymentListResponse(
+  data: unknown
+): data is DeploymentListResponse {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'deployments' in data &&
+    Array.isArray((data as DeploymentListResponse).deployments)
+  );
+}
+
+export function frontendOnlyDeployMode() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return API_URL.length === 0 && !LOCAL_HOSTS.has(window.location.hostname);
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -52,10 +76,19 @@ async function parseResponse<T>(response: Response): Promise<T> {
 export async function listDeployments() {
   const response = await fetch(apiPath('/api/deployments'));
   const data = await parseResponse<DeploymentListResponse>(response);
+
+  if (!isDeploymentListResponse(data)) {
+    throw new Error(defaultApiUnavailableMessage());
+  }
+
   return data.deployments;
 }
 
 export async function createGitDeployment(sourceRef: string) {
+  if (frontendOnlyDeployMode()) {
+    throw new Error(defaultApiUnavailableMessage());
+  }
+
   const response = await fetch(apiPath('/api/deployments'), {
     body: JSON.stringify({
       source_ref: sourceRef,
@@ -71,6 +104,10 @@ export async function createGitDeployment(sourceRef: string) {
 }
 
 export async function createUploadDeployment(file: File) {
+  if (frontendOnlyDeployMode()) {
+    throw new Error(defaultApiUnavailableMessage());
+  }
+
   const form = new FormData();
   form.append('file', file);
 

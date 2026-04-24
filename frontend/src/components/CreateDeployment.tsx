@@ -4,6 +4,7 @@ import {
   createGitDeployment,
   createUploadDeployment,
   type Deployment,
+  frontendOnlyDeployMode,
 } from '../api/client';
 
 type Mode = 'git' | 'upload';
@@ -13,6 +14,7 @@ export function CreateDeployment() {
   const [mode, setMode] = useState<Mode>('git');
   const [gitUrl, setGitUrl] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const frontendOnlyMode = frontendOnlyDeployMode();
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -37,6 +39,7 @@ export function CreateDeployment() {
   });
 
   const canSubmit =
+    frontendOnlyMode ||
     mutation.isPending ||
     (mode === 'git' && gitUrl.trim().length === 0) ||
     (mode === 'upload' && !file);
@@ -107,6 +110,13 @@ export function CreateDeployment() {
             />
           </label>
         )}
+
+        {frontendOnlyMode ? (
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            This Brimble deployment is frontend-only. Use the local Compose
+            stack to create real deployments.
+          </p>
+        ) : null}
 
         {mutation.error ? (
           <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">

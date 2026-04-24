@@ -118,7 +118,7 @@ The frontend includes `frontend/brimble.json` so Brimble rewrites SPA routes to
 
 Repository: `https://github.com/eyurenalison/brimble-pipeline.git`
 
-Live URL: pending Brimble import and deploy.
+Live URL: `https://brimble-pipeline.brimble.app/`
 
 ### Brimble Feedback
 
