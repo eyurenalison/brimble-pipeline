@@ -2,6 +2,11 @@
 
 Deployment pipeline project.
 
+The main submission artifact is the fullstack deployment pipeline that runs
+locally end-to-end with `docker compose up`. The separate Brimble link in this
+README is the frontend-only static deployment used for the Brimble
+deploy-and-feedback requirement.
+
 ## Setup
 
 Prerequisites:
@@ -120,7 +125,7 @@ Brimble settings:
 - Install command: `bun install --frozen-lockfile`
 - Build command: `bun run build`
 - Output directory: `dist`
-- Environment variable: leave `VITE_API_URL` blank unless pointing the UI at a
+- Environment variable: leave `VITE_API_URL` blank or use /api because brimble does not accept an empty secret. unless pointing the UI at a
   deployed Brimble Pipeline API
 
 The frontend includes `frontend/brimble.json` so Brimble rewrites SPA routes to
@@ -140,14 +145,15 @@ directory all matter here, but the UI did not make the monorepo case especially
 clear. A stronger monorepo preset or a short guided checklist near those fields
 would reduce guesswork a lot.
 
-The frontend-only deploy also exposed an important product gap. When I deployed
-just the Vite frontend, the app initially tried to talk to `/api/deployments`
-and surfaced a bad runtime experience until I changed the frontend to explain
-that the Brimble deploy was static-only. That is partly on the app, but it also
-showed that Brimble does not give much guidance about the difference between
-deploying a static frontend and deploying a fullstack app that expects a live
-API. Some kind of “this project has no backend route configured” hint would help
-people catch that earlier.
+The frontend-only deploy also exposed an important product gap. In this Brimble
+deployment there is intentionally no backend API, so the live Brimble URL is
+not expected to create real deployments. Even so, the UX around that difference
+was confusing at first. I had to adjust the frontend to explain that the
+Brimble deploy was static-only. That is partly on the app, but it also showed
+that Brimble does not give much guidance about the difference between deploying
+a static frontend and deploying a fullstack app that expects a live API. Some
+kind of this project has no backend route configured hint would help people
+catch that earlier.
 
 The biggest bug I hit was artifact inconsistency. Brimble showed the correct
 commit SHA (`ca1e7e9`) and the build logs showed newly generated asset hashes,
