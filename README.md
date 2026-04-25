@@ -56,6 +56,11 @@ Successful local deployment:
 - Live local URL through Caddy:
   `http://localhost/810b3de6-63eb-40df-a460-318b4d90c9e5`
 
+The sample app is intentionally minimal, so its root route returns a simple
+JSON health response. That is still a successful end-to-end proof that the
+pipeline built the image, started the container, routed traffic through Caddy,
+and served the deployed app.
+
 Verified behaviors:
 
 - `docker compose up` starts Caddy, backend, frontend, and BuildKit
