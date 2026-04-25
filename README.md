@@ -96,6 +96,11 @@ I would also make the Caddy route management more defensive by using `Etag` /
 fine here, but optimistic concurrency would protect route updates if multiple
 deployments finish at nearly the same time.
 
+On the API side, I would tighten response consistency across endpoints, add a
+clearer terminal state for user-initiated deletion instead of reusing
+`failed`, and make the SSE log stream resumable with event IDs and reconnect
+support.
+
 Finally, I would improve deployment history cleanup. The system now cleans up a
 container if the pipeline fails after `docker run`, but the old failed test
 records remain in the database for visibility. A production version would likely
